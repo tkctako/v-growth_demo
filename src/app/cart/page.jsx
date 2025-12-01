@@ -190,7 +190,7 @@ export default function CartPage() {
                 <ul className="cart-nav">
                   <li><a href="/guidance/terms-of-service#shipping">送料について</a></li>
                   <li><a href="/guidance/terms-of-service#returns">返品・交換について</a></li>
-                  <li><a href="/guidance/privacy-policy">プライバシーポリシー</a></li>
+                  <li><a href="https://www.v-growth.co.jp/policy/">プライバシーポリシー</a></li>
                 </ul>
               </form>
             </div>

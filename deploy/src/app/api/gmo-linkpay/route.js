@@ -114,12 +114,14 @@ export async function POST(req) {
             classroom: data.classroom || '',
             customerInfo: {
               name: info.name,
-              guardian: info.guardian,
+              company_name: info.company_name,
+              // guardian: info.guardian,
               postal: info.postal,
               prefecture: info.prefecture,
               address: info.address,
               tel: info.tel,
               email: info.email,
+              remarks: info.remarks,
               payment_method: info.payment_method
             },
             products: {

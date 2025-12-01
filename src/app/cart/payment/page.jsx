@@ -108,29 +108,60 @@ export default function PaymentPage() {
   const shipping = 0;
   const total = subtotal + shipping;
 
+  // 字段名称映射到 orderFormData.field 中的 field_name
+  const fieldNameMap = {
+    company_name: '法人名',
+    name: 'お名前',
+    postal: '郵便番号',
+    prefecture: '都道府県',
+    address: '住所',
+    tel: '電話番号',
+    email: 'メールアドレス',
+    remarks: '備考'
+  };
+
+  // 获取字段的 required 状态
+  const getFieldRequired = (fieldId) => {
+    if (!orderFormData?.field) return false;
+    const fieldName = fieldNameMap[fieldId];
+    const field = orderFormData.field.find(f => f.field_name === fieldName);
+    return field?.required === true;
+  };
+
+  // 获取字段的 label
+  const getFieldLabel = (fieldId) => {
+    if (!orderFormData?.field) {
+      // 如果没有 orderFormData，使用默认标签
+      const defaultLabels = {
+        company_name: '法人名',
+        name: 'お名前',
+        postal: '郵便番号',
+        prefecture: '都道府県',
+        address: '住所',
+        tel: '電話番号',
+        email: 'メールアドレス',
+        remarks: '備考'
+      };
+      return defaultLabels[fieldId] || fieldId;
+    }
+    const fieldName = fieldNameMap[fieldId];
+    const field = orderFormData.field.find(f => f.field_name === fieldName);
+    return field?.field_name || fieldNameMap[fieldId] || fieldId;
+  };
+
   const validateForm = () => {
     const newErrors = {};
-    const requiredFields = {
-      // classroom: '教室名',
-      name: 'お名前',
-      company_name: '法人名',
-      // guardian: '保護者名',
-      postal: '郵便番号',
-      prefecture: '都道府県',
-      address: '住所',
-      tel: '電話番号',
-      email: 'メールアドレス'
-    };
-
-    // 必須項目のチェック
-    for (const [id, label] of Object.entries(requiredFields)) {
-      const value = formData[id];
-      if (!value || (typeof value === 'string' && value.trim() === '')) {
-        // if (id === 'classroom') {
-        //   newErrors[id] = `${label}を選択してください`;
-        // } else {
-          newErrors[id] = `${label}を入力してください`;
-        // }
+    
+    // 只验证 required 的字段
+    const fieldsToValidate = Object.keys(fieldNameMap);
+    for (const fieldId of fieldsToValidate) {
+      const isRequired = getFieldRequired(fieldId);
+      if (isRequired) {
+        const label = getFieldLabel(fieldId);
+        const value = formData[fieldId];
+        if (!value || (typeof value === 'string' && value.trim() === '')) {
+          newErrors[fieldId] = `${label}を入力してください`;
+        }
       }
     }
 
@@ -311,26 +342,32 @@ export default function PaymentPage() {
       {errors.classroom && <span className="error-message">{errors.classroom}</span>}
     </div> */}
     <div className="form-group">
-      <label htmlFor="company_name">法人名<span className="required">必須</span></label>
+      <label htmlFor="company_name">
+        {getFieldLabel('company_name')}
+        {getFieldRequired('company_name') && <span className="required">必須</span>}
+      </label>
       <input
         type="text"
         id="company_name"
         name="company_name"
         value={formData.company_name}
         onChange={handleChange}
-        required
+        required={getFieldRequired('company_name')}
       />
       {errors.company_name && <span className="error-message">{errors.company_name}</span>}
     </div>
     <div className="form-group">
-      <label htmlFor="name">お名前<span className="required">必須</span></label>
+      <label htmlFor="name">
+        {getFieldLabel('name')}
+        {getFieldRequired('name') && <span className="required">必須</span>}
+      </label>
       <input
         type="text"
         id="name"
         name="name"
         value={formData.name}
         onChange={handleChange}
-        required
+        required={getFieldRequired('name')}
       />
       {errors.name && <span className="error-message">{errors.name}</span>}
     </div>
@@ -347,7 +384,10 @@ export default function PaymentPage() {
       {errors.guardian && <span className="error-message">{errors.guardian}</span>}
     </div> */}
     <div className="form-group">
-      <label htmlFor="postal">郵便番号<span className="required">必須</span></label>
+      <label htmlFor="postal">
+        {getFieldLabel('postal')}
+        {getFieldRequired('postal') && <span className="required">必須</span>}
+      </label>
       <input
         type="text"
         id="postal"
@@ -356,19 +396,22 @@ export default function PaymentPage() {
         onChange={handleChange}
         pattern="\d{3}-?\d{4}"
         placeholder="例：123-4567"
-        required
+        required={getFieldRequired('postal')}
       />
       {errors.postal && <span className="error-message">{errors.postal}</span>}
     </div>
     <div className="form-group">
-      <label htmlFor="prefecture">都道府県<span className="required">必須</span></label>
+      <label htmlFor="prefecture">
+        {getFieldLabel('prefecture')}
+        {getFieldRequired('prefecture') && <span className="required">必須</span>}
+      </label>
       <div className="select-wrapper">
         <select
           id="prefecture"
           name="prefecture"
           value={formData.prefecture}
           onChange={handleChange}
-          required
+          required={getFieldRequired('prefecture')}
         >
           <option value="">選択してください</option>
           {orderFormData?.field?.find(f => f.field_name === '都道府県')?.menu?.map((prefecture, index) => (
@@ -381,19 +424,25 @@ export default function PaymentPage() {
       {errors.prefecture && <span className="error-message">{errors.prefecture}</span>}
     </div>
     <div className="form-group">
-      <label htmlFor="address">住所<span className="required">必須</span></label>
+      <label htmlFor="address">
+        {getFieldLabel('address')}
+        {getFieldRequired('address') && <span className="required">必須</span>}
+      </label>
       <input
         type="text"
         id="address"
         name="address"
         value={formData.address}
         onChange={handleChange}
-        required
+        required={getFieldRequired('address')}
       />
       {errors.address && <span className="error-message">{errors.address}</span>}
     </div>
     <div className="form-group">
-      <label htmlFor="tel">電話番号<span className="required">必須</span></label>
+      <label htmlFor="tel">
+        {getFieldLabel('tel')}
+        {getFieldRequired('tel') && <span className="required">必須</span>}
+      </label>
       <input
         type="tel"
         id="tel"
@@ -402,24 +451,30 @@ export default function PaymentPage() {
         onChange={handleChange}
         pattern="\d{2,4}-?\d{2,4}-?\d{3,4}"
         placeholder="例：03-1234-5678"
-        required
+        required={getFieldRequired('tel')}
       />
       {errors.tel && <span className="error-message">{errors.tel}</span>}
     </div>
     <div className="form-group">
-      <label htmlFor="email">メールアドレス<span className="required">必須</span></label>
+      <label htmlFor="email">
+        {getFieldLabel('email')}
+        {getFieldRequired('email') && <span className="required">必須</span>}
+      </label>
       <input
         type="email"
         id="email"
         name="email"
         value={formData.email}
         onChange={handleChange}
-        required
+        required={getFieldRequired('email')}
       />
       {errors.email && <span className="error-message">{errors.email}</span>}
     </div>
     <div className="form-group">
-      <label htmlFor="remarks">備考</label>
+      <label htmlFor="remarks">
+        {getFieldLabel('remarks')}
+        {getFieldRequired('remarks') && <span className="required">必須</span>}
+      </label>
       <input
         type="text"
         id="remarks"
@@ -427,7 +482,9 @@ export default function PaymentPage() {
         value={formData.remarks}
         onChange={handleChange}
         rows={4}
+        required={getFieldRequired('remarks')}
       />
+      {errors.remarks && <span className="error-message">{errors.remarks}</span>}
     </div>
     <button type="submit"  style={{display: 'none'}} className="btn-cart">決済する</button>
   </form>

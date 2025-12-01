@@ -4,6 +4,8 @@
 // --------------------------------------------------
 .is-kv{
   position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
   &-lower{
     margin: vwpc(50) auto vwpc(100);
     @media #{$sp}{

@@ -51,11 +51,28 @@ export default function MainVisualSwiper({ bannerData }) {
         className="my-swiper"
       >
         {topBanners.length > 0 ? (
-          topBanners.map((banner, index) => (
-            <SwiperSlide key={banner.banner_type || index}>
-              <img src={banner.banner_url || `/images/home/cover-${index + 1}.png`} alt="" />
-            </SwiperSlide>
-          ))
+          topBanners.flatMap((banner, bannerIndex) => {
+            // 將 banner_url 用逗號分隔，並過濾空字串
+            const urls = banner.banner_url 
+              ? banner.banner_url.split(',').map(url => url.trim()).filter(url => url.length > 0)
+              : [];
+            
+            // 如果沒有 URL，返回一個使用預設圖片的 slide
+            if (urls.length === 0) {
+              return (
+                <SwiperSlide key={`${banner.banner_type || 'banner'}-${bannerIndex}-default`}>
+                  <img src={`/images/home/cover-${bannerIndex + 1}.png`} alt="" />
+                </SwiperSlide>
+              );
+            }
+            
+            // 為每個 URL 創建一個 SwiperSlide
+            return urls.map((url, urlIndex) => (
+              <SwiperSlide key={`${banner.banner_type || 'banner'}-${bannerIndex}-${urlIndex}`}>
+                <img src={url} alt="" />
+              </SwiperSlide>
+            ));
+          })
         ) : (
           // 如果没有 banner 数据，显示默认图片
           <>

@@ -21,18 +21,38 @@ export default function Header() {
       .then(auth => {
         if (auth.customer_id && typeof auth.customer_id === 'number' && auth.customer_id !== -1) {
           // customer_id を使用して詳細情報を取得
-          return fetch(`/api/customer-detail?customer_id=${auth.customer_id}`);
+          return fetch(`/api/customer-detail?customer_id=${auth.customer_id}`)
+            .then(res => res.json())
+            .then(data => {
+              console.log('customer-detail data:', data);
+              if (data.customer_name) {
+                setCustomer(data);
+              } else {
+                setError('顧客データが見つかりません');
+              }
+              // customer_id を取得した後、logo API を呼び出す
+              return auth.customer_id;
+            });
         } else {
           throw new Error('まだ認証されていません');
         }
       })
-      .then(res => res.json())
-      .then(data => {
-        console.log('customer-detail data:', data);
-        if (data.customer_name) {
-          setCustomer(data);
-        } else {
-          setError('顧客データが見つかりません');
+      .then(customer_id => {
+        if (customer_id) {
+          // logo API を呼び出す（header に customer_id を設定）
+          fetch('/api/logo', {
+            method: 'GET',
+            headers: {
+              'customer_id': String(customer_id),
+            },
+          })
+            .then(res => res.json())
+            .then(logoData => {
+              console.log('logo API 返回數據:', logoData);
+            })
+            .catch((error) => {
+              console.error('logo API 調用失敗:', error);
+            });
         }
       })
       .catch((error) => {
@@ -141,7 +161,7 @@ export default function Header() {
               <li className="is-nav_lists__item"><a href="/">商品一覧</a></li>
               <li className="is-nav_lists__item"><a href="/guidance/terms-of-service">はじめての方へ</a></li>
               <li className="is-nav_lists__item"><a href="/faq/">よくあるご質問</a></li>
-              <li className="is-nav_lists__item"><a href="/guidance/privacy-policy#contact">お問い合わせ</a></li>
+              <li className="is-nav_lists__item"><a href="mailto:edu-ict@v-growth.co.jp?subject=【ICT学習支援機器販売サイト】ECサイトお問い合わせ&body=【お名前】%0D%0A【所属されている塾・学校名】%0D%0A【ご連絡先（メールアドレス または 電話番号）】%0D%0A【お問い合わせ内容】" target="_blank">お問い合わせ</a></li>
             </ul>
           </nav>
           <div className="is-nav sp">
@@ -160,7 +180,7 @@ export default function Header() {
                     <li className="is-nav_lists__item"><a href="/" onClick={closeDrawer}>商品一覧</a></li>
                     <li className="is-nav_lists__item"><a href="/guidance/terms-of-service" onClick={closeDrawer}>はじめての方へ</a></li>
                     <li className="is-nav_lists__item"><a href="/faq/" onClick={closeDrawer}>よくあるご質問</a></li>
-                    <li className="is-nav_lists__item"><a href="/guidance/privacy-policy#contact" onClick={closeDrawer}>お問い合わせ</a></li>
+                    <li className="is-nav_lists__item"><a href="mailto:edu-ict@v-growth.co.jp?subject=【ICT学習支援機器販売サイト】ECサイトお問い合わせ&body=【お名前】%0D%0A【所属されている塾・学校名】%0D%0A【ご連絡先（メールアドレス または 電話番号）】%0D%0A【お問い合わせ内容】" target="_blank">お問い合わせ</a></li>
                   </ul>
                 </div>
               </nav>

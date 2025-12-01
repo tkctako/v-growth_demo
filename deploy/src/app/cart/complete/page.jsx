@@ -10,6 +10,7 @@ export default function CartCompletePage() {
   const [paymentStatus, setPaymentStatus] = useState(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState(null);
+  const [paymentType, setPaymentType] = useState(null); // 支払い方法を追跡
 
   useEffect(() => {
     console.log('=== CART COMPLETE ページ読み込み ===');
@@ -29,28 +30,34 @@ export default function CartCompletePage() {
     const orderNumber = urlParams.get('order_number');
     const transCode = urlParams.get('trans_code');
     const userId = urlParams.get('user_id');
+    const orderId = urlParams.get('orderId');
 
-    console.log('解析された URL パラメータ:', { result, orderNumber, transCode, userId });
+    console.log('解析された URL パラメータ:', { result, orderNumber, transCode, userId, orderId });
 
-    // order_numberがある場合、支払い検証を実行
-    if (orderNumber) {
-      console.log('order_numberを発見、支払い検証フローを開始');
-      verifyPayment(orderNumber);
-    } else {
-      console.log('order_numberがない、支払い検証をスキップ');
-    }
-
-    // result=1の場合、支払い成功としてカートをクリア
-    if (result === '1') {
-      console.log('result=1を検出、カートをクリア');
+    // 支払い方法を判定
+    if (orderId) {
+      // orderIdがある = 銀行振込
+      console.log('銀行振込の注文を検出');
+      setPaymentType('banking');
+      setPaymentStatus({ is_paid: true }); // 銀行振込は既に完了している
       clearCart();
-      console.log('支払い成功、カートをクリアしました', {
-        orderNumber,
-        transCode,
-        userId
-      });
-    } else {
-      console.log('result は 1 ではありません、現在の値:', result);
+      console.log('注文成功、カートをクリアしました', { orderId });
+    } else if (orderNumber) {
+      // order_numberがある = GMO決済
+      console.log('GMO決済の注文を検出');
+      setPaymentType('gmo');
+      if (result === '1') {
+        clearCart();
+      }
+      // GMO決済の場合は verifyPayment は呼び出さない（APIがないため）
+      console.log('order_numberを検出しましたが、verifyPayment APIは未実装のためスキップ');
+      // 将来 verifyPayment API が実装されたら、ここでコメントアウトを外す
+      // verifyPayment(orderNumber);
+    } else if (result === '1') {
+      // result=1 がある場合も成功として扱う
+      console.log('result=1を検出、注文成功');
+      setPaymentStatus({ is_paid: true });
+      clearCart();
     }
   }, [clearCart]);
 
@@ -156,15 +163,7 @@ export default function CartCompletePage() {
           )}
 
 
-          {paymentStatus && paymentStatus.is_paid ? (
-            <div>
-              <p className="lead">
-                お買い上げありがとうございました。<br />
-                商品発送準備が完了次第、発送いたします。
-              </p>
-              <p className="btn-more"><a href="/">トップページ</a></p>
-            </div>
-          ) : paymentStatus && !paymentStatus.is_paid ? (
+          {paymentStatus && !paymentStatus.is_paid ? (
             <div>
               <p className="lead">
                 支払いが完了していないか、処理中です。<br />
@@ -179,7 +178,14 @@ export default function CartCompletePage() {
             <div>
               <p className="lead">
                 お買い上げありがとうございました。<br />
-                商品発送準備が完了次第、発送いたします。
+                {paymentType === 'banking' ? (
+                  <>
+                    銀行振込でのご注文をお受けいたしました。<br />
+                    ご入金確認後、商品発送準備をいたします。
+                  </>
+                ) : (
+                  '商品発送準備が完了次第、発送いたします。'
+                )}
               </p>
               <p className="btn-more"><a href="/">トップページ</a></p>
             </div>

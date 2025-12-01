@@ -134,7 +134,7 @@ function ProductDetailContent() {
                   <li>{product.description}</li>
                 </ul>
                 <p className="price en">¥{product.price?.toLocaleString()}<small>(税込)</small></p>
-                <p className="campaign">【まとめ買い】5点以上まとめ買いで5%OFF</p>
+                {/* <p className="campaign">【まとめ買い】5点以上まとめ買いで5%OFF</p> */}
               </div>
             </div>
 
@@ -241,7 +241,7 @@ function ProductDetailContent() {
                   ))}
               </>
             ) : (
-              // 如果没有 banner 数据，显示默认图片
+              // バナーデータがない場合はデフォルト画像を表示
               <>
                 {/* <li className="aside-bnr_lists__item">
                   <a href=""><img src="/images/common/bnr-1.png" alt="" /></a>
