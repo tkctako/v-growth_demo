@@ -1,0 +1,407 @@
+
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+  <meta content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1" name="viewport">
+  <meta content="telephone=no" name="format-detection">
+  <title>注文確認 | ICT学習支援機器販売サイト</title>
+  <meta name="description" content="">
+  <meta name="robots" content="ALL">
+  <link rel="icon" href="../assets/images/favicon/favicon-48_48.ico" type="image/x-icon">
+
+  <!-- PNG形式のFavicon（複数サイズ） -->
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon/favicon_16-16.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon/favicon_24-24.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon/favicon_32-32.ico">
+  <link rel="icon" type="image/png" sizes="48x48" href="../assets/images/favicon/favicon_48-48.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon/favicon_64-64.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="../assets/images/favicon/favicon_128-128.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="../assets/images/favicon/favicon_256-256.ico">
+
+  <meta property="og:title" content="注文確認 | ICT学習支援機器販売サイト">
+  <meta property="og:description" content="">
+  <meta property="og:image" content="https://www.sonpo.or.jp/sme_insurance/assets/images/ogp.png">
+  <meta property="og:url" content="https://www.sonpo.or.jp/sme_insurance/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="注文確認 | ICT学習支援機器販売サイト">
+
+  <!-- fonts -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@100..900&family=Zen+Maru+Gothic:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+
+  <!-- css -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/drawer/3.2.1/css/drawer.min.css" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.1/css/swiper.min.css">
+  <link rel="stylesheet" type="text/css" href="../assets/css/import.min.css">
+
+  <!-- js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/iScroll/5.1.3/iscroll.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/drawer/3.2.1/js/drawer.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/image-map-resizer/1.0.10/js/imageMapResizer.min.js"></script>
+  <script type="text/javascript">
+  $(document).ready(function() {
+    $('.drawer').drawer();
+    $('#menu li a').on('click', function() {
+      $('.drawer').drawer('close');
+    });
+  });
+  </script>
+  <script type="text/javascript">
+$(function() {
+  // --------------------
+  // スクロールナビゲーション
+  // --------------------
+  var startPos = 0, winScrollTop = 0;
+  $(window).on('scroll', function(){
+    winScrollTop = $(this).scrollTop();
+    if (winScrollTop >= startPos) {
+      $('.header').removeClass('scroll');
+    } else {
+      $('.header').removeClass('hide').addClass('scroll');
+    }
+    startPos = winScrollTop;
+  });
+
+  // --------------------
+  // スクロール変更
+  // --------------------
+  function initScrollChange() {
+    var px_change = 80;
+    var px_change2 = 1500;
+    $(window).on('scroll', function(){
+      var scrollTop = $(this).scrollTop();
+      if (scrollTop > px_change) {
+        $(".header").addClass("action");
+      } else if ($(".header").hasClass("action")) {
+        $(".header").removeClass("action");
+      } else if ($(".header").hasClass("header")) {
+        $('.header').removeClass('scroll');
+      }
+      if (scrollTop > px_change2) {
+        $(".video").addClass("visual");
+      } else if ($(".video").hasClass("visual")) {
+        $('.video').removeClass('visual');
+      }
+    });
+  }
+
+  // --------------------
+  // Accrordion
+  // --------------------
+  // $(function(){
+  //   $(".acMenu dt").on("click", function() {
+  //     $(this).next().slideToggle();
+  //     $(this).toggleClass("active");
+  //   });
+  //   $(".ac_lists").on("click", function() {
+  //     $(this).toggleClass("open");
+  //   });
+  // });
+  $(function(){
+    // PC用のホバーイベント
+    $(".acMenu").on("mouseenter", function() {
+      if (!isMobile()) {
+        $(this).find("dd").stop(true, true).slideDown();
+        $(this).find("dt").addClass("active");
+      }
+    }).on("mouseleave", function() {
+      if (!isMobile()) {
+        $(this).find("dd").stop(true, true).slideUp();
+        $(this).find("dt").removeClass("active");
+      }
+    });
+
+    // スマホ用のタップイベント
+    $(".acMenu dt").on("click", function() {
+      if (isMobile()) {
+        const dd = $(this).next("dd");
+        dd.stop(true, true).slideToggle();
+        $(this).toggleClass("active");
+      }
+    });
+
+    $(".ac_lists").on("mouseenter", function() {
+      $(this).addClass("open");
+    }).on("mouseleave", function() {
+      $(this).removeClass("open");
+    });
+
+    // デバイスがモバイルかどうかを判定する関数
+    function isMobile() {
+      return /Mobi|Android/i.test(navigator.userAgent);
+    }
+  });
+
+  // --------------------
+  // モーダル
+  // --------------------
+  $(".js-btn-link").on("click", function() {
+    $(this).prev().slideToggle();
+    $(this).toggleClass("active");
+  });
+
+  $('.js-modal-open').each(function(){
+    $(this).on('click', function(){
+      var target = $(this).data('target');
+      var modal = document.getElementById(target);
+      $(modal).fadeIn();
+      return false;
+    });
+  });
+
+  $('.js-modal-close').on('click', function(){
+    $('.js-modal').fadeOut();
+    return false;
+  });
+
+  const allRadioButtons = document.querySelectorAll('input[type="radio"]');
+  allRadioButtons.forEach(radio => {
+    radio.addEventListener('change', function() {
+      // 同じname属性を持つラジオボタンを取得
+      const name = this.name;
+      const radioButtons = document.querySelectorAll(`input[name="${name}"]`);
+
+      // すべてのラベルからactiveクラスを削除
+      radioButtons.forEach(r => {
+        const label = document.querySelector(`label[for="${r.id}"]`);
+        if (label) {
+          label.classList.remove('active');
+        }
+      });
+
+      // 選択されたラジオボタンのラベルにactiveクラスを追加
+      const activeLabel = document.querySelector(`label[for="${this.id}"]`);
+      if (activeLabel) {
+        activeLabel.classList.add('active');
+      }
+    });
+  });
+
+  // クリックアコーディオン
+  $(function() {
+    $('.more').on('click', function() {
+      const reasonBox = $(this).closest('.reason-box');
+      const content = reasonBox.find('.reason-box-content');
+      const title = reasonBox.find('.reason-box-ttl');
+
+      content.slideToggle(500);
+      content.toggleClass('open');
+      title.toggleClass('active');
+    });
+
+    $('.reason-box-content .close').on('click', function() {
+      const content = $(this).closest('.reason-box-content');
+      const reasonBox = content.closest('.reason-box');
+      const title = reasonBox.find('.reason-box-ttl');
+
+      content.slideToggle(500);
+      content.removeClass('open');
+      title.removeClass('active');
+    });
+  });
+
+  // --------------------
+  // 注文確認画面の承認チェックボックス
+  // --------------------
+  $(function() {
+    const approvalChecks = $('.js-approval-check');
+    const submitBtn = $('#btn-cart-submit');
+
+    if (approvalChecks.length && submitBtn.length) {
+      const updateSubmitState = () => {
+        const allChecked = approvalChecks.filter(':checked').length === approvalChecks.length;
+        if (allChecked) {
+          submitBtn.prop('disabled', false).removeClass('is-disabled');
+        } else {
+          submitBtn.prop('disabled', true).addClass('is-disabled');
+        }
+      };
+
+      // 初期状態
+      updateSubmitState();
+
+      // チェックボックスの状態変更時にボタンの有効/無効を切り替え
+      approvalChecks.on('change', updateSubmitState);
+    }
+  });
+});
+  </script>
+</head>
+<body class="is-page is-cart is-confirm">
+  
+<header id="header" class="header header-lower header-lower-confirm">
+  <div class="header-news flex">
+    <p class="header-news_ttl">キャンペーンニュースが入ります</p>
+    <p class="header-author">ようこそ<span>山田学習塾</span>様</p>
+  </div>
+  <div class="header-wrap flex flex-stretch">
+    
+    <h1 class="logo"><a href="../"><img src="../assets/images/common/logo.png" alt="ICT学習支援機器販売サイト"></a></h1>
+    <div class="header-r_side flex flex-center">
+      
+<nav class="is-nav pc">
+  
+<ul class="is-nav_lists flex">
+  <li class="is-nav_lists__item"><a href="../home/">商品一覧</a></li>
+  <li class="is-nav_lists__item"><a href="../for_beginner/">はじめての方へ</a></li>
+  <li class="is-nav_lists__item"><a href="../faq/">よくあるご質問</a></li>
+  <li class="is-nav_lists__item"><a href="mailto:edu-ict@v-growth.co.jp?subject=【ICT学習支援機器販売サイト】ECサイトお問い合わせ&body=【お名前】%0D%0A【所属されている塾・学校名】%0D%0A【ご連絡先（メールアドレス または 電話番号）】%0D%0A【お問い合わせ内容】" target="_blank">お問い合わせ</a></li>
+</ul>
+</nav>
+<div class="is-nav sp">
+  <div class="drawer drawer--right">
+    <button class="drawer-toggle drawer-hamburger" type="button"><span class="text"></span><span class="drawer-hamburger-icon"></span></button>
+    <nav class="drawer-nav" role="navigation">
+      <div id="menu" class="g-nav drawer-menu">
+        
+<ul class="is-nav_lists flex">
+  <li class="is-nav_lists__item"><a href="../home/">商品一覧</a></li>
+  <li class="is-nav_lists__item"><a href="../for_beginner/">はじめての方へ</a></li>
+  <li class="is-nav_lists__item"><a href="../faq/">よくあるご質問</a></li>
+  <li class="is-nav_lists__item"><a href="mailto:edu-ict@v-growth.co.jp?subject=【ICT学習支援機器販売サイト】ECサイトお問い合わせ&body=【お名前】%0D%0A【所属されている塾・学校名】%0D%0A【ご連絡先（メールアドレス または 電話番号）】%0D%0A【お問い合わせ内容】" target="_blank">お問い合わせ</a></li>
+</ul>
+      </div>
+    </nav>
+  </div>
+</div>
+      <form class="header-search" action="/search" method="GET">
+        <input type="text" name="keyword" class="form-control" placeholder="商品を探す">
+        <button type="submit" class="btn btn-search"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </form>
+      <p class="cart">
+        <a href="../cart/cart.html"><i class="fa-solid fa-cart-shopping"></i></a>
+        <i class="count en">12</i>
+      </p>
+    </div>
+  </div>
+</header>
+  <ul class="is-cart_navi flex flerx-stretch">
+    <li>カート</li>
+    <li>情報入力</li>
+    <li class="current">注文確認</li>
+    <li>注文完了</li>
+  </ul>
+  <div class="is-cart-wrap">
+    <div class="is-cart-wrap-flex flex-set">
+      <main class="is-page-main is-cart-main">
+        <form class="cart-form" action="" method="POST">
+          <div class="form-group">
+            <label for="name">お名前</label>
+            <span class="txt">山田 太郎</span>
+          </div>
+          <div class="form-group">
+            <label for="postal">郵便番号</label>
+            <span class="txt">000-0000</span>
+          </div>
+          <div class="form-group">
+            <label for="prefecture">都道府県</label>
+            <span class="txt">大阪府</span>
+          </div>
+          <div class="form-group">
+            <label for="address">住所</label>
+            <span class="txt">大阪市北区東天満1-5-17</span>
+          </div>
+          <div class="form-group">
+            <label for="tel">電話番号</label>
+            <span class="txt">00-0000-0000</span>
+          </div>
+          <div class="form-group">
+            <label for="email">メールアドレス</label>
+            <span class="txt">info@hogehoge.co.jp</span>
+          </div>
+        </form>
+      </main>
+      
+<aside class="aside aside-cart aside-cart-confirm">
+  <div class="aside-cart_box">
+    <p class="ttl-main">お買い物カゴ</p>
+    <form class="cart-form" action="/cart/add" method="POST">
+      <table class="table_clm table_clm-cart_side">
+        <tr>
+          <th>小計</th>
+          <td>¥192,000</td>
+        </tr>
+        <tr>
+          <th>送料</th>
+          <td>¥1,000</td>
+        </tr>
+        <tr>
+          <th>合計</th>
+          <td>¥193,000</td>
+        </tr>
+      </table>
+      
+        <div class="howto_payment howto_payment-confirm">
+          <p class="ttl-main">決済方法</p>
+          <div class="payment-options">
+            <div class="payment-options_item">
+              <span>クレジットカード決済</span>
+              <div class="img"><img src="../assets/images/common/card_list.svg" alt=""></div>
+            </div>
+          </div>
+        </div>
+        <!-- <button type="submit" class="btn-cart">決済する</button> -->
+        <a href="" class="btn-cart js-modal-open" data-target="modal">決済する</a>
+      
+    </form>
+  </div>
+</aside>
+    </div>
+  </div>
+  <div id="modal" class="modal js-modal">
+    <div class="modal_bg js-modal-close"></div>
+    <div class="modal_content modal_content-chara">
+      <i class="js-modal-close js-modal-close-btn"><img src="../assets/images/page/ic-cross.svg" alt=""></i>
+      <div class="is-guidance-inner">
+        <div class="is-guidance-box">
+          <h3>本商品のご購入につきまして</h3>
+          <p>本商品はデバイス保証無しの製品となっております。<br>故障についてはお客様都合・その他要因に関わらず、修理サービスの対象とはなりません。<br>ご了承の上、ご購入をお願いいたします。</p>
+        </div>
+        <form class="cart-form" action="" method="POST">
+          <div class="form-group form-group-checkbox">
+            <label class="checkbox-label">
+              <input type="checkbox" class="js-approval-check" id="approval-check1" name="approval" required>
+              <span>デバイス保証が付いてないことを了承済みです。</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" class="js-approval-check" id="approval-check2" name="approval" required>
+              <span>いかなる事由による故障も修理サービス対象外であることを了承済みです。</span>
+            </label>
+          </div>
+          <button type="submit" class="btn-cart is-disabled" id="btn-cart-submit" disabled>承諾して、注文を確定する</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+<footer id="footer" class="footer footer-lower footer-confirm">
+  <div class="footer-hdr flex-set">
+    <p class="footer-hdr_seller">販売元：株式会社V-Growth</p>
+    <nav class="footer-nav">
+      <div class=" ">
+        <ul class="footer-nav_lists flex">
+          <li class="footer-nav_lists__item"><a href="../faq/">よくあるご質問</a></li>
+          <li class="footer-nav_lists__item"><a href="../trademark/">商標</a></li>
+          <li class="footer-nav_lists__item"><a href="../guidance/terms-of-service.html">利用規約</a></li>
+          <li class="footer-nav_lists__item"><a href="../guidance/privacy-policy.html">プライバシーポリシー</a></li>
+          <li class="footer-nav_lists__item"><a href="../guidance/transaction-law.html">特定商取引法に基づく表記</a></li>
+        </ul>
+      </div>
+    </nav>
+  </div>
+  <div class="footer-ftr">
+    <p class="copyright">&copy;V-Growth.</p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/4.5.1/js/swiper.js"></script>
+
+</html>
+</body>
+</body>

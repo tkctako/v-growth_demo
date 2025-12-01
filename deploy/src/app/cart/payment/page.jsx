@@ -25,6 +25,12 @@ export default function PaymentPage() {
   const [orderFormData, setOrderFormData] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [orderFormLoading, setOrderFormLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [approvalChecks, setApprovalChecks] = useState({
+    check1: false,
+    check2: false
+  });
 
   const { cart, setProductDetail, getProductDetail } = useCartStore();
   const [productDetails, setProductDetailsState] = useState({});
@@ -197,104 +203,163 @@ export default function PaymentPage() {
     e.preventDefault();
     console.log('handleSubmit', e);
     if (validateForm()) {
-      const orderId = Date.now();
-      const amount = total;
+      // 先显示 modal，不直接提交
+      setShowModal(true);
+    }
+  };
+
+  const handleConfirmSubmit = async () => {
+    // 检查是否所有复选框都已选中
+    if (!approvalChecks.check1 || !approvalChecks.check2) {
+      return;
+    }
+
+    // 关闭 modal
+    setShowModal(false);
+
+    // 执行原来的提交逻辑
+    const orderId = Date.now();
+    const amount = total;
+    
+    // 商品情報を準備 - 数量を考慮してグループ化
+    const productGroups = {};
+    
+    // 商品をグループ化
+    console.log('cart', cart);
+    cart.forEach(item => {
+      // cartStoreのgetProductDetailを使用して商品詳細を取得
+      const productDetail = getProductDetail(item.product_id);
+      console.log('productDetail', productDetail);
+      const productName = productDetail.product_name;
+      const productId = item.product_id;
       
-      // 商品情報を準備 - 数量を考慮してグループ化
-      const productGroups = {};
-      
-      // 商品をグループ化
-      console.log('cart', cart);
-      cart.forEach(item => {
-        // cartStoreのgetProductDetailを使用して商品詳細を取得
-        const productDetail = getProductDetail(item.product_id);
-        console.log('productDetail', productDetail);
-        const productName = productDetail.product_name;
-        const productId = item.product_id;
-        
-        if (!productGroups[productId]) {
-          productGroups[productId] = {
-            name: productName,
-            id: productId,
-            quantity: 0
-          };
-        }
-        productGroups[productId].quantity += item.quantity;
-      });
-      
-      // フォーマットされた文字列を生成
-      const productNames = Object.values(productGroups)
-        .map(group => `${group.name}x${group.quantity}`)
-        .join('/');
-      
-      const productIds = Object.values(productGroups)
-        .map(group => `${group.id}x${group.quantity}`)
-        .join('/');
-      
-      // 完全な注文データを準備
-      const orderData = {
-        orderId,
-        amount,
-        // classroom: formData.classroom,
-        userName: formData.name,
-        email: formData.email,
-        customer_id: customerId, // 添加 customer_id
-        // ユーザー入力データ
-        customerInfo: {
-          name: formData.name,
-          company_name: formData.company_name,
-          // guardian: formData.guardian,
-          postal: formData.postal,
-          prefecture: formData.prefecture,
-          address: formData.address,
-          tel: formData.tel,
-          email: formData.email,
-          remarks: formData.remarks,
-          payment_method: formData.payment_method
-        },
-        // 商品情報
-        products: {
-          names: productNames,
-          ids: productIds,
-          items: cart,
-          productDetails: productDetails
-        },
-        // 金額情報
-        pricing: {
-          subtotal,
-          shipping,
-          total
-        }
-      };
-      console.log('orderData', orderData);
-      
-      // 根據付款方式選擇不同的 API
-      let apiEndpoint;
-      if (formData.payment_method === 'banking') {
-        apiEndpoint = '/api/banking-pay';
-      } else {
-        apiEndpoint = '/api/gmo-linkpay';
+      if (!productGroups[productId]) {
+        productGroups[productId] = {
+          name: productName,
+          id: productId,
+          quantity: 0
+        };
       }
-      
-      console.log('使用 API:', apiEndpoint, '付款方式:', formData.payment_method);
-      const res = await fetch(apiEndpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData),
+      productGroups[productId].quantity += item.quantity;
+    });
+    
+    // フォーマットされた文字列を生成
+    const productNames = Object.values(productGroups)
+      .map(group => `${group.name}x${group.quantity}`)
+      .join('/');
+    
+    const productIds = Object.values(productGroups)
+      .map(group => `${group.id}x${group.quantity}`)
+      .join('/');
+    
+    // 完全な注文データを準備
+    const orderData = {
+      orderId,
+      amount,
+      // classroom: formData.classroom,
+      userName: formData.name,
+      email: formData.email,
+      customer_id: customerId, // 添加 customer_id
+      // ユーザー入力データ
+      customerInfo: {
+        name: formData.name,
+        company_name: formData.company_name,
+        // guardian: formData.guardian,
+        postal: formData.postal,
+        prefecture: formData.prefecture,
+        address: formData.address,
+        tel: formData.tel,
+        email: formData.email,
+        remarks: formData.remarks,
+        payment_method: formData.payment_method
+      },
+      // 商品情報
+      products: {
+        names: productNames,
+        ids: productIds,
+        items: cart,
+        productDetails: productDetails
+      },
+      // 金額情報
+      pricing: {
+        subtotal,
+        shipping,
+        total
+      }
+    };
+    console.log('orderData', orderData);
+    
+    // 根據付款方式選擇不同的 API
+    let apiEndpoint;
+    if (formData.payment_method === 'banking') {
+      apiEndpoint = '/api/banking-pay';
+    } else {
+      apiEndpoint = '/api/gmo-linkpay';
+    }
+    
+    console.log('使用 API:', apiEndpoint, '付款方式:', formData.payment_method);
+    const res = await fetch(apiEndpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData),
+    });
+    
+    console.log('res', res);
+    const data = await res.json();
+    console.log('data', data);
+    
+    // 處理 GMO 信用卡付款的重定向
+    if (data.redirectUrl) {
+      window.location.href = data.redirectUrl;
+    } else if (data.success && formData.payment_method === 'banking') {
+      // 銀行振込成功，跳轉到完成頁面
+      window.location.href = `/cart/complete?orderId=${data.orderId}`;
+    }
+  };
+
+  const handleCheckboxChange = (checkName) => {
+    setApprovalChecks(prev => ({
+      ...prev,
+      [checkName]: !prev[checkName]
+    }));
+  };
+
+  // 处理 modal 显示/隐藏动画
+  useEffect(() => {
+    if (showModal) {
+      // 显示 modal：先设置 visible，然后触发动画
+      setModalVisible(true);
+      // 使用 requestAnimationFrame 确保 DOM 更新后再触发动画
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const modal = document.getElementById('modal');
+          if (modal) {
+            modal.classList.add('show');
+          }
+        });
       });
-      
-      console.log('res', res);
-      const data = await res.json();
-      console.log('data', data);
-      
-      // 處理 GMO 信用卡付款的重定向
-      if (data.redirectUrl) {
-        window.location.href = data.redirectUrl;
-      } else if (data.success && formData.payment_method === 'banking') {
-        // 銀行振込成功，跳轉到完成頁面
-        window.location.href = `/cart/complete?orderId=${data.orderId}`;
+    } else {
+      // 隐藏 modal：先移除动画类，然后隐藏
+      const modal = document.getElementById('modal');
+      if (modal) {
+        modal.classList.remove('show');
+        // 等待动画完成后再隐藏元素
+        setTimeout(() => {
+          setModalVisible(false);
+        }, 300);
+      } else {
+        setModalVisible(false);
       }
     }
+  }, [showModal]);
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    // 重置复选框状态
+    setApprovalChecks({
+      check1: false,
+      check2: false
+    });
   };
 
   const handleChange = (e) => {
@@ -565,6 +630,60 @@ export default function PaymentPage() {
           </aside>
         </div>
       </div>
+
+      {/* Modal */}
+      {modalVisible && (
+        <div id="modal" className="modal js-modal">
+          <div className="modal_bg js-modal-close" onClick={handleCloseModal}></div>
+          <div className="modal_content modal_content-chara">
+            <i className="js-modal-close js-modal-close-btn" onClick={handleCloseModal}>
+              <img src="/images/common/ic-cross.svg" alt="" />
+            </i>
+            <div className="is-guidance-inner">
+              <div className="is-guidance-box">
+                <h3>本商品のご購入につきまして</h3>
+                <p>本商品はデバイス保証無しの製品となっております。<br />故障についてはお客様都合・その他要因に関わらず、修理サービスの対象とはなりません。<br />ご了承の上、ご購入をお願いいたします。</p>
+              </div>
+              <form className="cart-form" onSubmit={(e) => { e.preventDefault(); handleConfirmSubmit(); }}>
+                <div className="form-group form-group-checkbox">
+                  <label className="checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      className="js-approval-check" 
+                      id="approval-check1" 
+                      name="approval" 
+                      checked={approvalChecks.check1}
+                      onChange={() => handleCheckboxChange('check1')}
+                      required
+                    />
+                    <span>デバイス保証が付いてないことを了承済みです。</span>
+                  </label>
+                  <label className="checkbox-label">
+                    <input 
+                      type="checkbox" 
+                      className="js-approval-check" 
+                      id="approval-check2" 
+                      name="approval" 
+                      checked={approvalChecks.check2}
+                      onChange={() => handleCheckboxChange('check2')}
+                      required
+                    />
+                    <span>いかなる事由による故障も修理サービス対象外であることを了承済みです。</span>
+                  </label>
+                </div>
+                <button 
+                  type="submit" 
+                  className={`btn-cart ${approvalChecks.check1 && approvalChecks.check2 ? '' : 'is-disabled'}`}
+                  id="btn-cart-submit"
+                  disabled={!approvalChecks.check1 || !approvalChecks.check2}
+                >
+                  承諾して、注文を確定する
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
